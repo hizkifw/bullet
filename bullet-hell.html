@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>'tis but a game!</title>
+<script>
+// quick and dirty bullet hell game written in javascript using html canvas
+// made this at my school's computer lab while waiting for the guys to fix some technical difficulties
+// no libraries because they disabled the internet
+// wouldn't have made this if the internet was up in the first place anyways
+// anyways have fun with this thing
+// i'll probably add some cool things to it later
+
+var c;
+function init() {
+	c = document.getElementById("canvas").getContext("2d");
+	window.onkeydown = keydown;
+	window.onkeyup = keyup;
+	update();
+}
+
+keys = {
+	"ArrowUp": false,
+	"ArrowDown": false,
+	"ArrowLeft": false,
+	"ArrowRight": false
+};
+
+function keydown(e) {
+	keys[e.key] = true;
+}
+function keyup(e) {
+	keys[e.key] = false;
+}
+
+var player = {
+	pos: [10, 300],
+	size: 10,
+	red: 1,
+	health: 100
+}
+var enemy = {
+	pos: [400, 300],
+	size: 50,
+	health: 1000
+}
+
+var bullets = [];
+var b_rot = 0;
+var frame = 0;
+var score = 0;
+var lastUpdate = new Date().getTime();
+
+function update() {
+	lastUpdate = new Date().getTime();
+	frame++;
+	b_rot++;
+
+	if(player.health > 0)
+		score++;
+	else if(player.health < 0)
+		player.health = 0;
+
+	// quick hack to pass by value
+	initpos = JSON.stringify(enemy.pos)
+
+	if(frame % 5 == 0) {
+		bullets = bullets.concat({
+			pos: JSON.parse(initpos),
+			size: 10,
+			angle: b_rot*.666666666,
+			speed: .75
+		});
+	}
+	if(frame % 5 == 0) {
+		bullets = bullets.concat({
+			pos: JSON.parse(initpos),
+			size: 10,
+			angle: b_rot*-.333333,
+			speed: .5
+		});
+	}
+	if(frame % 4 == 0) {
+		bullets = bullets.concat({
+			pos: JSON.parse(initpos),
+			size: 10,
+			angle: b_rot*.5,
+			speed: .25
+		});
+	}
+	if(frame % 50 == 0) {
+		bullets = bullets.concat({
+			pos: JSON.parse(initpos),
+			size: 10,
+			angle: b_rot*.001,
+			speed: .1
+		});
+	}
+
+	// update bullets
+	for(var i = 0; i < bullets.length; i++) {
+		if(typeof(bullets[i]) === "undefined")
+			continue;
+
+		bullets[i].pos[0] += bullets[i].speed * Math.sin(bullets[i].angle)
+		bullets[i].pos[1] += bullets[i].speed * Math.cos(bullets[i].angle)
+
+		// check player collision
+		if(player.pos[0] > bullets[i].pos[0] - (bullets[i].size / 2) &&
+			player.pos[0] < bullets[i].pos[0] + (bullets[i].size / 2) &&
+			player.pos[1] > bullets[i].pos[1] - (bullets[i].size / 2) &&
+			player.pos[1] < bullets[i].pos[1] + (bullets[i].size / 2)) {
+			// Player within bullet
+			player.red = 1;
+			if(player.health > 0)
+				player.health -= 10;
+			bullets[i].pos = [-10000, -10000];
+		}
+
+		// check if outside of screen
+		if(bullets[i].pos[0] < 0 || bullets[i].pos[0] > 800 || bullets[i].pos[1] < 0 || bullets[i].pos[1] > 600) {
+			//bullets.splice(i, 1);
+			delete bullets[i];
+
+			bullets = bullets.filter(val => val);
+		}
+	}
+
+	// update player
+	var speed = 1;
+	if(keys.ArrowUp)
+		player.pos[1] -= speed;
+	else if(keys.ArrowDown)
+		player.pos[1] += speed;
+	if(keys.ArrowRight)
+		player.pos[0] += speed;
+	else if(keys.ArrowLeft)
+		player.pos[0] -= speed;
+
+	player.red -= .1;
+
+	draw();
+	
+	now = new Date().getTime();
+	delta = now - lastUpdate;
+	setTimeout(update, 1000/60 - delta);
+}
+
+function draw() {
+	// clear
+	if(player.red > 0 || player.health == 0)
+		c.fillStyle = "#ff0000";
+	else
+		c.fillStyle = "#000000";
+	c.fillRect(0, 0, 800, 600);
+	c.fillStyle = "#FFFFFF";
+
+	// player
+	/*if(player.red > 0)
+		c.fillStyle = "#FF0000";
+	else*/
+		c.fillStyle = "#00FF00";
+	c.fillRect(player.pos[0], player.pos[1], player.size, player.size);
+
+	// bullets
+	c.fillStyle = "#FFFFFF";
+	for(var i = 0; i < bullets.length; i++) {
+		if(typeof(bullets[i]) === "undefined")
+			continue;
+		c.fillRect(bullets[i].pos[0], bullets[i].pos[1], bullets[i].size, bullets[i].size);
+	}
+
+	// enemy
+	c.fillStyle = "#FF0000";
+	c.fillRect(enemy.pos[0] - enemy.size * .25, enemy.pos[1] - enemy.size * .25, enemy.size * .5, enemy.size * .5);
+
+	c.fillRect(enemy.pos[0] - enemy.size * .5, enemy.pos[1] - enemy.size * .5, enemy.size * .25, enemy.size * .25);
+	c.fillRect(enemy.pos[0] + enemy.size * .25, enemy.pos[1] - enemy.size * .5, enemy.size * .25, enemy.size * .25);
+	c.fillRect(enemy.pos[0] - enemy.size * .5, enemy.pos[1] + enemy.size * .25, enemy.size * .25, enemy.size * .25);
+	c.fillRect(enemy.pos[0] + enemy.size * .25, enemy.pos[1] + enemy.size * .25, enemy.size * .25, enemy.size * .25);
+
+	// health bar
+	c.fillStyle = "#FF0000";
+	c.fillRect(10, 10, 100, 10);
+	c.fillStyle = "#00FF00";
+	c.fillRect(10, 10, player.health, 10);
+
+	// score
+	c.font = "15px monospace";
+	c.textAlign = "left";
+	c.fillStyle = "#FFFFFF";
+	c.fillText("Score: " + score, 120, 19);
+
+	// game over
+	if(player.health == 0) {
+		c.fillStyle = "#000000";
+		c.fillRect(200, 225, 400, 100);
+		c.font = "100px monospace";
+		c.textAlign = "center";
+		c.fillStyle = "#FF0000";
+		c.fillText("ur ded", 402, 302);
+		c.fillStyle = "#FFFFFF";
+		c.fillText("ur ded", 400, 300);
+	}
+}
+</script>
+<style>
+body {
+	color: #fff;
+	background: #000;
+}
+#canvas {
+	width: 800px;
+	height: 600px;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	margin: -300px 0 0 -400px;
+	border: 1px solid #fff;
+}
+</style>
+	</head>
+
+	<body onload="init()">
+		<canvas id="canvas" width="800" height="600"></canvas>
+	</body>
+</html>
