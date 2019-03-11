@@ -5,8 +5,9 @@
 <script>
 // quick and dirty bullet hell game written in javascript using html canvas
 // made this at my school's computer lab while waiting for the guys to fix some technical difficulties
-// no libraries because they disabled the internet
+// not using any libraries because they disabled the internet
 // wouldn't have made this if the internet was up in the first place anyways
+
 // anyways have fun with this thing
 // i'll probably add some cool things to it later
 
@@ -41,7 +42,8 @@ var player = {
 var enemy = {
 	pos: [400, 300],
 	size: 50,
-	health: 1000
+	health: 1000,
+	movement: 0
 }
 
 var bullets = [];
@@ -54,6 +56,7 @@ function update() {
 	lastUpdate = new Date().getTime();
 	frame++;
 	b_rot++;
+	enemy.movement += 0.001;
 
 	if(player.health > 0)
 		score++;
@@ -61,7 +64,7 @@ function update() {
 		player.health = 0;
 
 	// quick hack to pass by value
-	initpos = JSON.stringify(enemy.pos)
+	var initpos = JSON.stringify(enemy.pos);
 
 	if(frame % 5 == 0) {
 		bullets = bullets.concat({
@@ -125,6 +128,10 @@ function update() {
 		}
 	}
 
+	// move enemy around
+	enemy.pos[0] = 400 + (enemy.movement * Math.sin(b_rot/32));
+	enemy.pos[1] = 300 + (enemy.movement * Math.cos(b_rot/32));
+
 	// update player
 	var speed = 1;
 	if(keys.ArrowUp)
@@ -148,17 +155,14 @@ function update() {
 function draw() {
 	// clear
 	if(player.red > 0 || player.health == 0)
-		c.fillStyle = "#ff0000";
+		c.fillStyle = "#555555";
 	else
 		c.fillStyle = "#000000";
 	c.fillRect(0, 0, 800, 600);
 	c.fillStyle = "#FFFFFF";
 
 	// player
-	/*if(player.red > 0)
-		c.fillStyle = "#FF0000";
-	else*/
-		c.fillStyle = "#00FF00";
+	c.fillStyle = "#00FF00";
 	c.fillRect(player.pos[0], player.pos[1], player.size, player.size);
 
 	// bullets
@@ -166,6 +170,8 @@ function draw() {
 	for(var i = 0; i < bullets.length; i++) {
 		if(typeof(bullets[i]) === "undefined")
 			continue;
+		if(bullets[i].health)
+			c.fillStyle = "#FF0000";
 		c.fillRect(bullets[i].pos[0], bullets[i].pos[1], bullets[i].size, bullets[i].size);
 	}
 
