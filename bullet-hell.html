@@ -302,33 +302,33 @@ var stages = [
                 interval: 100,
                 pos: [200, 100],
                 size: 10,
-                number: 21,
+                number: 20,
                 speed: .5,
-                angle: .3
+                angle: .1*Math.PI
             },
             {
                 interval: 100,
                 pos: [600, 500],
                 size: 10,
-                number: 21,
+                number: 20,
                 speed: .5,
-                angle: .3
+                angle: .1*Math.PI
             },
             {
                 interval: 100,
                 pos: [200, 500],
                 size: 10,
-                number: 21,
+                number: 20,
                 speed: .5,
-                angle: .3
+                angle: .1*Math.PI
             },
             {
                 interval: 100,
                 pos: [600, 100],
                 size: 10,
-                number: 21,
+                number: 20,
                 speed: .5,
-                angle: .3
+                angle: .1*Math.PI
             },
         ]
     },
@@ -349,33 +349,33 @@ var stages = [
                 interval: 100,
                 pos: [200, 100],
                 size: 10,
-                number: 21,
+                number: 20,
                 speed: .5,
-                angle: .3
+                angle: .1*Math.PI
             },
             {
                 interval: 100,
                 pos: [600, 500],
                 size: 10,
-                number: 21,
+                number: 20,
                 speed: .5,
-                angle: .3
+                angle: .1*Math.PI
             },
             {
                 interval: 100,
                 pos: [200, 500],
                 size: 10,
-                number: 21,
+                number: 20,
                 speed: .5,
-                angle: .3
+                angle: .1*Math.PI
             },
             {
                 interval: 100,
                 pos: [600, 100],
                 size: 10,
-                number: 21,
+                number: 20,
                 speed: .5,
-                angle: .3
+                angle: .1*Math.PI
             },
         ]
     },
@@ -451,9 +451,13 @@ function update() {
             //bullets.splice(i, 1);
             delete bullets[i];
 
-            bullets = bullets.filter(val => val);
+            //bullets = bullets.filter(val => val);
         }
     }
+
+    // clean bullet array
+    //if(frame % 500 == 0)
+    //    bullets = bullets.filter(val => val);
 
     // move enemy around
     //enemy.pos[0] = 400 + (enemy.movement * Math.sin(b_rot/32));
