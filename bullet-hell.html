@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>'tis but a game!</title>
+    <head>
+        <title>'tis but a game!</title>
 <script>
 // quick and dirty bullet hell game written in javascript using html canvas
 // made this at my school's computer lab while waiting for the guys to fix some technical difficulties
@@ -13,220 +13,596 @@
 
 var c;
 function init() {
-	c = document.getElementById("canvas").getContext("2d");
-	window.onkeydown = keydown;
-	window.onkeyup = keyup;
-	update();
+    c = document.getElementById("canvas").getContext("2d");
+    window.onkeydown = keydown;
+    window.onkeyup = keyup;
+    update();
 }
 
 keys = {
-	"ArrowUp": false,
-	"ArrowDown": false,
-	"ArrowLeft": false,
-	"ArrowRight": false
+    Up: false,
+    Down: false,
+    Left: false,
+    Right: false,
+    Slow: false
+};
+
+keymap = {
+    ArrowUp: "Up",
+    ArrowDown: "Down",
+    ArrowLeft: "Left",
+    ArrowRight: "Right",
+    w: "Up",
+    s: "Down",
+    a: "Left",
+    d: "Right",
+    W: "Up",
+    S: "Down",
+    A: "Left",
+    D: "Right",
+
+    Shift: "Slow"
 };
 
 function keydown(e) {
-	keys[e.key] = true;
+    console.log(e.key);
+    if(typeof(keymap[e.key]) !== "undefined")
+        keys[keymap[e.key]] = true;
 }
 function keyup(e) {
-	keys[e.key] = false;
+    if(typeof(keymap[e.key]) !== "undefined")
+        keys[keymap[e.key]] = false;
 }
 
 var player = {
-	pos: [10, 300],
-	size: 10,
-	red: 1,
-	health: 100
+    pos: [10, 300],
+    size: 10,
+    red: 1,
+    health: 100
 }
 var enemy = {
-	pos: [400, 300],
-	size: 50,
-	health: 1000,
-	movement: 0
+    pos: [400, 300],
+    size: 50,
+    health: 1000,
+    movement: 0
 }
 
 var bullets = [];
 var b_rot = 0;
 var frame = 0;
 var score = 0;
+var stage = 0;
+var stage_timer = 0;
 var lastUpdate = new Date().getTime();
+var delta = 0;
+
+var stages = [
+    {
+        name: "Game start!",
+        duration: 5000,
+        bullets: [
+            {
+                interval: 5,
+                pos: [400, 300],
+                size: 10,
+                angle: .666666666,
+                speed: .75
+            },
+            {
+                interval: 5,
+                pos: [400, 300],
+                size: 10,
+                angle: .5,
+                speed: .25
+            },
+            {
+                interval: 4,
+                pos: [400, 300],
+                size: 10,
+                angle: .5,
+                speed: .25
+            }
+        ],
+        bursts: [
+            {
+                interval: 500,
+                pos: [400, 300],
+                size: 10,
+                number: 75,
+                speed: .5,
+                angle: .5
+            },
+            {
+                interval: 2000,
+                pos: [400, 300],
+                size: 10,
+                number: 50,
+                speed: .25,
+                angle: .5
+            }
+        ]
+    },
+    {
+        name: "Hmm...",
+        duration: 500,
+        bullets: [
+            {
+                interval: 5,
+                pos: [400, 300],
+                size: 10,
+                angle: .666666666,
+                speed: .75
+            }
+        ]
+    },
+    {
+        name: "Cheese bags!",
+        duration: 5000,
+        bullets: [
+            {
+                interval: 5,
+                pos: [200, 300],
+                size: 10,
+                angle: .666666666,
+                speed: .75
+            },
+            {
+                interval: 4,
+                pos: [200, 300],
+                size: 10,
+                angle: .5,
+                speed: .25
+            },
+            {
+                interval: 5,
+                pos: [600, 300],
+                size: 10,
+                angle: .666666666,
+                speed: .75
+            },
+            {
+                interval: 4,
+                pos: [600, 300],
+                size: 10,
+                angle: .5,
+                speed: .25
+            }
+        ]
+    },
+    {
+        name: "Finally a break!",
+        duration: 300,
+        bullets: [
+            {
+                interval: 5,
+                pos: [400, 300],
+                size: 10,
+                angle: .666666666,
+                speed: .75
+            }
+        ]
+    },
+    {
+        name: "Watch the corners!",
+        duration: 5000,
+        bullets: [
+            {
+                interval: 5,
+                pos: [0, 0],
+                size: 10,
+                angle: .666666666,
+                speed: .75
+            },
+            {
+                interval: 4,
+                pos: [800, 0],
+                size: 10,
+                angle: .5,
+                speed: .25
+            },
+            {
+                interval: 5,
+                pos: [800, 600],
+                size: 10,
+                angle: .666666666,
+                speed: .75
+            },
+            {
+                interval: 4,
+                pos: [0, 600],
+                size: 10,
+                angle: .5,
+                speed: .25
+            }
+        ]
+    },
+    {
+        name: "You're screwed now!",
+        duration: 5000,
+        bullets: [
+            {
+                interval: 5,
+                pos: [0, 0],
+                size: 10,
+                angle: .5,
+                speed: .75
+            },
+            {
+                interval: 4,
+                pos: [800, 0],
+                size: 10,
+                angle: .5,
+                speed: .25
+            },
+            {
+                interval: 5,
+                pos: [800, 600],
+                size: 10,
+                angle: .5,
+                speed: .75
+            },
+            {
+                interval: 4,
+                pos: [0, 600],
+                size: 10,
+                angle: .5,
+                speed: .25
+            },
+            {
+                interval: 5,
+                pos: [400, 0],
+                size: 10,
+                angle: .5,
+                speed: .75
+            },
+            {
+                interval: 4,
+                pos: [800, 300],
+                size: 10,
+                angle: .5,
+                speed: .25
+            },
+            {
+                interval: 5,
+                pos: [0, 300],
+                size: 10,
+                angle: .5,
+                speed: .75
+            },
+            {
+                interval: 4,
+                pos: [400, 600],
+                size: 10,
+                angle: .5,
+                speed: .25
+            }
+        ]
+    },
+    {
+        name: "Phew, that was close!",
+        duration: 500,
+        bullets: [
+            {
+                interval: 5,
+                pos: [400, 300],
+                size: 10,
+                angle: .666666666,
+                speed: .75
+            }
+        ]
+    },
+	{
+        name: "Oh no",
+        duration: 2500,
+        bursts: [
+            {
+                interval: 100,
+                pos: [200, 100],
+                size: 10,
+                number: 21,
+                speed: .5,
+                angle: .3
+            },
+            {
+                interval: 100,
+                pos: [600, 500],
+                size: 10,
+                number: 21,
+                speed: .5,
+                angle: .3
+            },
+            {
+                interval: 100,
+                pos: [200, 500],
+                size: 10,
+                number: 21,
+                speed: .5,
+                angle: .3
+            },
+            {
+                interval: 100,
+                pos: [600, 100],
+                size: 10,
+                number: 21,
+                speed: .5,
+                angle: .3
+            },
+        ]
+    },
+	{
+        name: "OH NO",
+        duration: 2500,
+		bullets: [
+            {
+                interval: 4,
+                pos: [400, 300],
+                size: 10,
+                angle: .5,
+                speed: .25
+            }
+		],
+        bursts: [
+            {
+                interval: 100,
+                pos: [200, 100],
+                size: 10,
+                number: 21,
+                speed: .5,
+                angle: .3
+            },
+            {
+                interval: 100,
+                pos: [600, 500],
+                size: 10,
+                number: 21,
+                speed: .5,
+                angle: .3
+            },
+            {
+                interval: 100,
+                pos: [200, 500],
+                size: 10,
+                number: 21,
+                speed: .5,
+                angle: .3
+            },
+            {
+                interval: 100,
+                pos: [600, 100],
+                size: 10,
+                number: 21,
+                speed: .5,
+                angle: .3
+            },
+        ]
+    },
+
+]
 
 function update() {
-	lastUpdate = new Date().getTime();
-	frame++;
-	b_rot++;
-	enemy.movement += 0.001;
+    lastUpdate = new Date().getTime();
+    frame++;
+    stage_timer++;
+    b_rot++;
+    enemy.movement += 0.001;
 
-	if(player.health > 0)
-		score++;
-	else if(player.health < 0)
-		player.health = 0;
+    if(player.health > 0)
+        score++;
+    else if(player.health < 0)
+        player.health = 0;
 
-	// quick hack to pass by value
-	var initpos = JSON.stringify(enemy.pos);
+    // quick hack to pass by value
+    var initpos = JSON.stringify(enemy.pos);
 
-	if(frame % 5 == 0) {
-		bullets = bullets.concat({
-			pos: JSON.parse(initpos),
-			size: 10,
-			angle: b_rot*.666666666,
-			speed: .75
-		});
-	}
-	if(frame % 5 == 0) {
-		bullets = bullets.concat({
-			pos: JSON.parse(initpos),
-			size: 10,
-			angle: b_rot*-.333333,
-			speed: .5
-		});
-	}
-	if(frame % 4 == 0) {
-		bullets = bullets.concat({
-			pos: JSON.parse(initpos),
-			size: 10,
-			angle: b_rot*.5,
-			speed: .25
-		});
-	}
-	if(frame % 50 == 0) {
-		bullets = bullets.concat({
-			pos: JSON.parse(initpos),
-			size: 10,
-			angle: b_rot*.001,
-			speed: .1
-		});
-	}
+    if(stage_timer > stages[stage].duration) {
+        if(stage+1 < stages.length)
+            stage++;
+        stage_timer = 0;
+    }
 
-	// update bullets
-	for(var i = 0; i < bullets.length; i++) {
-		if(typeof(bullets[i]) === "undefined")
-			continue;
+    if(typeof(stages[stage].bullets) !== "undefined") {
+        for(var i = 0; i < stages[stage].bullets.length; i++) {
+            if(frame % stages[stage].bullets[i].interval == 0) {
+                var b = JSON.parse(JSON.stringify(stages[stage].bullets[i]));
+                b.angle = b_rot*b.angle;
+                bullets = bullets.concat(b);
+            }
+        }
+    }
 
-		bullets[i].pos[0] += bullets[i].speed * Math.sin(bullets[i].angle)
-		bullets[i].pos[1] += bullets[i].speed * Math.cos(bullets[i].angle)
+    if(typeof(stages[stage].bursts) !== "undefined") {
+        for(var i = 0; i < stages[stage].bursts.length; i++) {
+            if(frame % stages[stage].bursts[i].interval == 0) {
+                for(var o = 0; o < stages[stage].bursts[i].number; o++) {
+                    var b = JSON.parse(JSON.stringify(stages[stage].bursts[i]));
+                    b.angle *= o;
+                    bullets = bullets.concat(b);
+                }
+            }
+        }
+    }
 
-		// check player collision
-		if(player.pos[0] > bullets[i].pos[0] - (bullets[i].size / 2) &&
-			player.pos[0] < bullets[i].pos[0] + (bullets[i].size / 2) &&
-			player.pos[1] > bullets[i].pos[1] - (bullets[i].size / 2) &&
-			player.pos[1] < bullets[i].pos[1] + (bullets[i].size / 2)) {
-			// Player within bullet
-			player.red = 1;
-			if(player.health > 0)
-				player.health -= 10;
-			bullets[i].pos = [-10000, -10000];
+    // update bullets
+    for(var i = 0; i < bullets.length; i++) {
+        if(typeof(bullets[i]) === "undefined")
+            continue;
+
+        // quick check distance for collision
+		if(Math.abs(bullets[i].pos[0] - player.pos[0]) < 2*player.size &&
+				Math.abs(bullets[i].pos[1] - player.pos[1]) < 2*player.size) {
+			if(
+					Math.sqrt(
+						Math.pow(player.pos[0] - bullets[i].pos[0], 2) + 
+						Math.pow(player.pos[1] - bullets[i].pos[1], 2)
+					) < bullets[i].size / 2) {
+				// Player within bullet
+				player.red = 1;
+				if(player.health > 0)
+					player.health -= 10;
+				bullets[i].pos = [-10000, -10000];
+			}
 		}
 
-		// check if outside of screen
-		if(bullets[i].pos[0] < 0 || bullets[i].pos[0] > 800 || bullets[i].pos[1] < 0 || bullets[i].pos[1] > 600) {
-			//bullets.splice(i, 1);
-			delete bullets[i];
+        bullets[i].pos[0] += bullets[i].speed * Math.sin(bullets[i].angle)
+        bullets[i].pos[1] += bullets[i].speed * Math.cos(bullets[i].angle)
 
-			bullets = bullets.filter(val => val);
-		}
-	}
+        // check if outside of screen
+        if(bullets[i].pos[0] < 0 || bullets[i].pos[0] > 800 || bullets[i].pos[1] < 0 || bullets[i].pos[1] > 600) {
+            //bullets.splice(i, 1);
+            delete bullets[i];
 
-	// move enemy around
-	enemy.pos[0] = 400 + (enemy.movement * Math.sin(b_rot/32));
-	enemy.pos[1] = 300 + (enemy.movement * Math.cos(b_rot/32));
+            bullets = bullets.filter(val => val);
+        }
+    }
 
-	// update player
-	var speed = 1;
-	if(keys.ArrowUp)
-		player.pos[1] -= speed;
-	else if(keys.ArrowDown)
-		player.pos[1] += speed;
-	if(keys.ArrowRight)
-		player.pos[0] += speed;
-	else if(keys.ArrowLeft)
-		player.pos[0] -= speed;
+    // move enemy around
+    //enemy.pos[0] = 400 + (enemy.movement * Math.sin(b_rot/32));
+    //enemy.pos[1] = 300 + (enemy.movement * Math.cos(b_rot/32));
 
-	player.red -= .1;
+    // update player
+    var speed = keys.Slow ? 0.5 : 1;
+    if(keys.Up)
+        player.pos[1] -= speed;
+    else if(keys.Down)
+        player.pos[1] += speed;
+    if(keys.Right)
+        player.pos[0] += speed;
+    else if(keys.Left)
+        player.pos[0] -= speed;
 
-	draw();
-	
-	now = new Date().getTime();
-	delta = now - lastUpdate;
-	setTimeout(update, 1000/60 - delta);
+    player.red -= .1;
+
+    draw();
+    
+    now = new Date().getTime();
+    delta = now - lastUpdate;
+	if(delta > 1000/60) {
+		console.log("LAG! update took " + delta + " milliseconds");
+		update();
+	} else setTimeout(update, 1000/60 - delta);
 }
 
 function draw() {
-	// clear
-	if(player.red > 0 || player.health == 0)
-		c.fillStyle = "#555555";
-	else
-		c.fillStyle = "#000000";
-	c.fillRect(0, 0, 800, 600);
-	c.fillStyle = "#FFFFFF";
+    // clear
+    if(player.red > 0 || player.health == 0)
+        c.fillStyle = "#555555";
+    else
+        c.fillStyle = "#000000";
+    c.fillRect(0, 0, 800, 600);
+    c.fillStyle = "#FFFFFF";
 
-	// player
-	c.fillStyle = "#00FF00";
-	c.fillRect(player.pos[0], player.pos[1], player.size, player.size);
+	// background
+	c.fillStyle = "#555555";
+	c.font = "50px monospace";
+	c.textAlign = "center";
+	c.fillText(stages[stage].name, 400, 100);
 
-	// bullets
-	c.fillStyle = "#FFFFFF";
-	for(var i = 0; i < bullets.length; i++) {
-		if(typeof(bullets[i]) === "undefined")
-			continue;
-		if(bullets[i].health)
-			c.fillStyle = "#FF0000";
-		c.fillRect(bullets[i].pos[0], bullets[i].pos[1], bullets[i].size, bullets[i].size);
-	}
+    // player
+    c.fillStyle = "#00FF00";
+	c.beginPath();
+    c.ellipse(player.pos[0], player.pos[1], player.size/2, player.size/2, 0, 0, 2 * Math.PI);
+	c.fill();
 
-	// enemy
-	c.fillStyle = "#FF0000";
-	c.fillRect(enemy.pos[0] - enemy.size * .25, enemy.pos[1] - enemy.size * .25, enemy.size * .5, enemy.size * .5);
+    //c.fillRect(player.pos[0] - player.size/2, player.pos[1] - player.size/2, player.size, player.size);
+    if(keys.Slow) {
+        c.fillStyle = "#FF0000";
+        c.fillRect(player.pos[0], player.pos[1], 1, 1);
+    }
 
-	c.fillRect(enemy.pos[0] - enemy.size * .5, enemy.pos[1] - enemy.size * .5, enemy.size * .25, enemy.size * .25);
-	c.fillRect(enemy.pos[0] + enemy.size * .25, enemy.pos[1] - enemy.size * .5, enemy.size * .25, enemy.size * .25);
-	c.fillRect(enemy.pos[0] - enemy.size * .5, enemy.pos[1] + enemy.size * .25, enemy.size * .25, enemy.size * .25);
-	c.fillRect(enemy.pos[0] + enemy.size * .25, enemy.pos[1] + enemy.size * .25, enemy.size * .25, enemy.size * .25);
+    // bullets
+    c.fillStyle = "#FFFFFF";
+    for(var i = 0; i < bullets.length; i++) {
+        if(typeof(bullets[i]) === "undefined")
+            continue;
+        if(bullets[i].health)
+            c.fillStyle = "#FF0000";
 
-	// health bar
-	c.fillStyle = "#FF0000";
-	c.fillRect(10, 10, 100, 10);
-	c.fillStyle = "#00FF00";
-	c.fillRect(10, 10, player.health, 10);
+		c.beginPath();
+		c.ellipse(bullets[i].pos[0], bullets[i].pos[1], bullets[i].size/2, bullets[i].size/2, 0, 0, 2 * Math.PI);
+		c.fill();
+        //c.fillRect(bullets[i].pos[0] - (bullets[i].size / 2), bullets[i].pos[1] - (bullets[i].size / 2), bullets[i].size, bullets[i].size);
+    }
 
-	// score
-	c.font = "15px monospace";
-	c.textAlign = "left";
-	c.fillStyle = "#FFFFFF";
-	c.fillText("Score: " + score, 120, 19);
-
-	// game over
-	if(player.health == 0) {
-		c.fillStyle = "#000000";
-		c.fillRect(200, 225, 400, 100);
-		c.font = "100px monospace";
-		c.textAlign = "center";
+	// bullet spawn warning
+	if(stages[stage].duration - stage_timer < 250 && typeof(stages[stage+1]) !== "undefined") {
 		c.fillStyle = "#FF0000";
-		c.fillText("ur ded", 402, 302);
-		c.fillStyle = "#FFFFFF";
-		c.fillText("ur ded", 400, 300);
+		c.strokeStyle = "#FF0000";
+		c.lineWidth = 2;
+		if(typeof(stages[stage+1].bullets) !== "undefined") {
+			for(var i = 0; i < stages[stage+1].bullets.length; i++) {
+				var b = stages[stage+1].bullets[i],
+					s = stages[stage].duration - stage_timer;
+				c.beginPath();
+				c.ellipse(b.pos[0], b.pos[1], s, s, 0, 0, 2 * Math.PI);
+				c.stroke();
+			}
+		}
+		if(typeof(stages[stage+1].bursts) !== "undefined") {
+			for(var i = 0; i < stages[stage+1].bursts.length; i++) {
+				var b = stages[stage+1].bursts[i],
+					s = stages[stage].duration - stage_timer;
+				c.beginPath();
+				c.ellipse(b.pos[0], b.pos[1], s, s, 0, 0, 2 * Math.PI);
+				c.stroke();
+			}
+		}
 	}
+
+    // enemy
+    /*
+    c.fillStyle = "#FF0000";
+    c.fillRect(enemy.pos[0] - enemy.size * .25, enemy.pos[1] - enemy.size * .25, enemy.size * .5, enemy.size * .5);
+
+    c.fillRect(enemy.pos[0] - enemy.size * .5, enemy.pos[1] - enemy.size * .5, enemy.size * .25, enemy.size * .25);
+    c.fillRect(enemy.pos[0] + enemy.size * .25, enemy.pos[1] - enemy.size * .5, enemy.size * .25, enemy.size * .25);
+    c.fillRect(enemy.pos[0] - enemy.size * .5, enemy.pos[1] + enemy.size * .25, enemy.size * .25, enemy.size * .25);
+    c.fillRect(enemy.pos[0] + enemy.size * .25, enemy.pos[1] + enemy.size * .25, enemy.size * .25, enemy.size * .25);
+    */
+
+    // health bar
+    c.fillStyle = "#FF0000";
+    c.fillRect(10, 10, 100, 10);
+    c.fillStyle = "#00FF00";
+    c.fillRect(10, 10, player.health, 10);
+
+    // score
+    c.font = "15px monospace";
+    c.textAlign = "left";
+    c.fillStyle = "#FFFFFF";
+    c.fillText("Score: " + score, 120, 19);
+	c.fillText(stages[stage].name, 10, 32);
+
+    // game over
+    if(player.health == 0) {
+        c.fillStyle = "#000000";
+        c.fillRect(200, 225, 400, 100);
+        c.font = "100px monospace";
+        c.textAlign = "center";
+        c.fillStyle = "#FF0000";
+        c.fillText("ur ded", 402, 302);
+        c.fillStyle = "#FFFFFF";
+        c.fillText("ur ded", 400, 300);
+    }
 }
 </script>
 <style>
 body {
-	color: #fff;
-	background: #000;
+    color: #fff;
+    background: #000;
 }
 #canvas {
-	width: 800px;
-	height: 600px;
-	position: absolute;
-	left: 50%;
-	top: 50%;
-	margin: -300px 0 0 -400px;
-	border: 1px solid #fff;
+    width: 800px;
+    height: 600px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin: -300px 0 0 -400px;
+    border: 1px solid #fff;
 }
 </style>
-	</head>
+    </head>
 
-	<body onload="init()">
-		<canvas id="canvas" width="800" height="600"></canvas>
-	</body>
+    <body onload="init()">
+        <canvas id="canvas" width="800" height="600"></canvas>
+    </body>
 </html>
