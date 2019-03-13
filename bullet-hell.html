@@ -16,7 +16,10 @@ function init() {
     c = document.getElementById("canvas").getContext("2d");
     window.onkeydown = keydown;
     window.onkeyup = keyup;
-    update();
+
+	setInterval(update, 1000/60);
+
+	draw();
 }
 
 keys = {
@@ -391,9 +394,6 @@ function update() {
     else if(player.health < 0)
         player.health = 0;
 
-    // quick hack to pass by value
-    var initpos = JSON.stringify(enemy.pos);
-
     if(stage_timer > stages[stage].duration) {
         if(stage+1 < stages.length)
             stage++;
@@ -472,17 +472,29 @@ function update() {
 
     player.red -= .1;
 
-    draw();
+    //draw();
     
     now = new Date().getTime();
     delta = now - lastUpdate;
 	if(delta > 1000/60) {
 		console.log("LAG! update took " + delta + " milliseconds");
-		update();
-	} else setTimeout(update, 1000/60 - delta);
+		//update();
+	}// else setTimeout(update, 1000/60 - delta);
 }
 
+// shim layer with setTimeout fallback
+window.requestAnimFrame = (function() {
+	return  window.requestAnimationFrame       ||
+			window.webkitRequestAnimationFrame ||
+			window.mozRequestAnimationFrame    ||
+			function( callback ){
+				window.setTimeout(callback, 1000 / 60);
+			};
+})();
+
+
 function draw() {
+	requestAnimFrame(draw);
     // clear
     if(player.red > 0 || player.health == 0)
         c.fillStyle = "#555555";
