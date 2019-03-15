@@ -27,10 +27,12 @@ keys = {
     Down: false,
     Left: false,
     Right: false,
-    Slow: false
+    Slow: false,
+    Pause: false
 };
 
 keymap = {
+    "Escape": "Pause",
     ArrowUp: "Up",
     ArrowDown: "Down",
     ArrowLeft: "Left",
@@ -49,8 +51,12 @@ keymap = {
 
 function keydown(e) {
     console.log(e.key);
-    if(typeof(keymap[e.key]) !== "undefined")
+    if(typeof(keymap[e.key]) !== "undefined") {
         keys[keymap[e.key]] = true;
+
+        if(keymap[e.key] == "Pause")
+            pause = !pause;
+    }
 }
 function keyup(e) {
     if(typeof(keymap[e.key]) !== "undefined")
@@ -70,6 +76,7 @@ var enemy = {
     movement: 0
 }
 
+var pause = false;
 var bullets = [];
 var b_rot = 0;
 var frame = 0;
@@ -83,6 +90,7 @@ var stages = [
     {
         name: "Game start!",
         duration: 500,
+        clear: true,
         bullets: [
             {
                 interval: 5,
@@ -123,6 +131,7 @@ var stages = [
     {
         name: "Getting uncomfortable",
         duration: 1500,
+		clear: true,
         bullets: [
             {
                 interval: 5,
@@ -215,6 +224,7 @@ var stages = [
     {
         name: "It stopped again",
         duration: 300,
+		clear: true,
         bullets: [
             {
                 interval: 5,
@@ -262,6 +272,7 @@ var stages = [
     {
         name: "You're screwed now!",
         duration: 3000,
+		clear: true,
         bullets: [
             {
                 interval: 5,
@@ -375,6 +386,7 @@ var stages = [
 	{
         name: "OH NO",
         duration: 2500,
+		clear: true,
 		bullets: [
             {
                 interval: 4,
@@ -491,6 +503,7 @@ var stages = [
     {
         name: "haaaaaa",
         duration: 300,
+		clear: true,
 		bullets: [
             {
                 interval: 4,
@@ -540,6 +553,7 @@ var stages = [
     {
         name: "You like that huh?",
         duration: 750,
+		clear: true,
         bullets: [
             {
                 interval: 10,
@@ -661,6 +675,7 @@ var stages = [
     {
         name: "Oh boy this is fun!",
         duration: 1000,
+		clear: true,
         bullets: [
             {
                 interval: 5,
@@ -757,11 +772,28 @@ function update_bullets_move() {
 						Math.pow(player.pos[1] - bullets[i].pos[1], 2)
 					) < bullets[i].size / 2) {
 				// Player within bullet
-				player.red = 1;
-				if(player.health > 0)
-					player.health -= 10;
 				bullets[i].pos = [-10000, -10000];
+				
+				// Check bullet type
+				if(typeof(bullets[i].type) === "undefined" || bullets[i].type == 0) {
+					// damage
+					player.red = 1;
+					if(player.health > 0)
+						player.health -= 10;
+				} else if(bullets[i].type == 1) {
+					// add HP
+					if(player.health < 100 && player.health > 0)
+						player.health++;
+				} else if(bullets[i].type == 2) {
+					// add score
+					score += 100;
+				}
 			}
+		}
+
+		// homing bullets
+		if(typeof(bullets[i].home) !== "undefined" && bullets[i].home) {
+			bullets[i].angle = Math.atan2(player.pos[0] - bullets[i].pos[0], player.pos[1] - bullets[i].pos[1]);
 		}
 
         bullets[i].pos[0] += bullets[i].speed * Math.sin(bullets[i].angle)
@@ -799,6 +831,9 @@ function update_player() {
 }
 
 function update() {
+    if(pause)
+        return 0;
+
     lastUpdate = new Date().getTime();
     frame++;
     stage_timer++;
@@ -811,8 +846,22 @@ function update() {
         player.health = 0;
 
     if(stage_timer > stages[stage].duration) {
-        if(stage+1 < stages.length)
+        if(stage+1 < stages.length) {
+			if(typeof(stages[stage].clear) !== "undefined" && stages[stage].clear) {
+				for(var i = 0; i < bullets.length; i++) {
+					// 0 - normal
+					// 1 - health
+					// 2 - score
+					if(typeof(bullets[i]) === "undefined")
+						continue;
+					bullets[i].type = Math.random() > 0.99 ? 1 : 2;
+					bullets[i].home = true;
+					bullets[i].speed = .015 * Math.sqrt(Math.pow(bullets[i].pos[0] - player.pos[0], 2) + Math.pow(bullets[i].pos[1] - player.pos[1], 2));
+					bullets[i].size /= 2;
+				}
+			}
             stage++;
+		}
         stage_timer = 0;
     }
 
@@ -841,12 +890,19 @@ window.requestAnimFrame = (function() {
 
 function draw_bullets() {
     // bullets
-    c.fillStyle = "#FFFFFF";
+
     for(var i = 0; i < bullets.length; i++) {
         if(typeof(bullets[i]) === "undefined")
             continue;
-        if(bullets[i].health)
-            c.fillStyle = "#FF0000";
+        
+		if(typeof(bullets[i].type) === "undefined" || bullets[i].type == 0)
+			c.fillStyle = "#FFFFFF";
+		else if(bullets[i].type == 1)
+			c.fillStyle = "#FF3333";
+		else if(bullets[i].type == 2)
+			c.fillStyle = "#5555FF";
+		else
+			c.fillStyle = "#555555";
 
 		c.beginPath();
 		c.ellipse(bullets[i].pos[0], bullets[i].pos[1], bullets[i].size/2, bullets[i].size/2, 0, 0, 2 * Math.PI);
