@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>'tis but a game!</title>
+        <title>Bullet Game</title>
 <script>
 // quick and dirty bullet hell game written in javascript using html canvas
 // made this at my school's computer lab while waiting for the guys to fix some technical difficulties
@@ -17,9 +17,9 @@ function init() {
     window.onkeydown = keydown;
     window.onkeyup = keyup;
 
-	setInterval(update, 1000/60);
+    setInterval(update, 1000/60);
 
-	draw();
+    draw();
 }
 
 keys = {
@@ -131,7 +131,7 @@ var stages = [
     {
         name: "Getting uncomfortable",
         duration: 1500,
-		clear: true,
+        clear: true,
         bullets: [
             {
                 interval: 5,
@@ -224,7 +224,7 @@ var stages = [
     {
         name: "It stopped again",
         duration: 300,
-		clear: true,
+        clear: true,
         bullets: [
             {
                 interval: 5,
@@ -272,7 +272,7 @@ var stages = [
     {
         name: "You're screwed now!",
         duration: 3000,
-		clear: true,
+        clear: true,
         bullets: [
             {
                 interval: 5,
@@ -345,7 +345,7 @@ var stages = [
             }
         ]
     },
-	{
+    {
         name: "Oh no",
         duration: 2500,
         bursts: [
@@ -383,11 +383,11 @@ var stages = [
             },
         ]
     },
-	{
+    {
         name: "OH NO",
         duration: 2500,
-		clear: true,
-		bullets: [
+        clear: true,
+        bullets: [
             {
                 interval: 4,
                 pos: [400, 300],
@@ -395,7 +395,7 @@ var stages = [
                 angle: .5,
                 speed: .25
             }
-		],
+        ],
         bursts: [
             {
                 interval: 100,
@@ -434,7 +434,7 @@ var stages = [
     {
         name: "NO NO NO NO",
         duration: 300,
-		bullets: [
+        bullets: [
             {
                 interval: 1,
                 pos: [400, 300],
@@ -442,12 +442,12 @@ var stages = [
                 angle: .5,
                 speed: .25
             }
-		]
+        ]
     },
     {
         name: "ah",
         duration: 300,
-		bullets: [
+        bullets: [
             {
                 interval: 4,
                 pos: [400, 300],
@@ -455,12 +455,12 @@ var stages = [
                 angle: .5,
                 speed: .25
             }
-		]
+        ]
     },
     {
         name: "AH!",
         duration: 300,
-		bullets: [
+        bullets: [
             {
                 interval: 1,
                 pos: [400, 300],
@@ -468,12 +468,12 @@ var stages = [
                 angle: -.5,
                 speed: .25
             }
-		]
+        ]
     },
     {
         name: "haa...",
         duration: 300,
-		bullets: [
+        bullets: [
             {
                 interval: 4,
                 pos: [400, 300],
@@ -481,7 +481,7 @@ var stages = [
                 angle: -.5,
                 speed: .25
             }
-		]
+        ]
     },
     {
         name: "ha?",
@@ -490,7 +490,7 @@ var stages = [
     {
         name: "HAAAAAA!",
         duration: 300,
-		bullets: [
+        bullets: [
             {
                 interval: 1,
                 pos: [400, 300],
@@ -498,13 +498,13 @@ var stages = [
                 angle: .5,
                 speed: .5
             }
-		]
+        ]
     },
     {
         name: "haaaaaa",
         duration: 300,
-		clear: true,
-		bullets: [
+        clear: true,
+        bullets: [
             {
                 interval: 4,
                 pos: [400, 300],
@@ -512,7 +512,7 @@ var stages = [
                 angle: -.5,
                 speed: .5
             }
-		]
+        ]
     },
     {
         name: "That wasn't hard, was it?",
@@ -553,7 +553,7 @@ var stages = [
     {
         name: "You like that huh?",
         duration: 750,
-		clear: true,
+        clear: true,
         bullets: [
             {
                 interval: 10,
@@ -675,7 +675,7 @@ var stages = [
     {
         name: "Oh boy this is fun!",
         duration: 1000,
-		clear: true,
+        clear: true,
         bullets: [
             {
                 interval: 5,
@@ -764,37 +764,37 @@ function update_bullets_move() {
             continue;
 
         // quick check distance for collision
-		if(Math.abs(bullets[i].pos[0] - player.pos[0]) < 2*player.size &&
-				Math.abs(bullets[i].pos[1] - player.pos[1]) < 2*player.size) {
-			if(
-					Math.sqrt(
-						Math.pow(player.pos[0] - bullets[i].pos[0], 2) + 
-						Math.pow(player.pos[1] - bullets[i].pos[1], 2)
-					) < bullets[i].size / 2) {
-				// Player within bullet
-				bullets[i].pos = [-10000, -10000];
-				
-				// Check bullet type
-				if(typeof(bullets[i].type) === "undefined" || bullets[i].type == 0) {
-					// damage
-					player.red = 1;
-					if(player.health > 0)
-						player.health -= 10;
-				} else if(bullets[i].type == 1) {
-					// add HP
-					if(player.health < 100 && player.health > 0)
-						player.health++;
-				} else if(bullets[i].type == 2) {
-					// add score
-					score += 100;
-				}
-			}
-		}
+        if(Math.abs(bullets[i].pos[0] - player.pos[0]) < 2*player.size &&
+                Math.abs(bullets[i].pos[1] - player.pos[1]) < 2*player.size) {
+            if(
+                    Math.sqrt(
+                        Math.pow(player.pos[0] - bullets[i].pos[0], 2) + 
+                        Math.pow(player.pos[1] - bullets[i].pos[1], 2)
+                    ) < bullets[i].size / 2) {
+                // Player within bullet
+                bullets[i].pos = [-10000, -10000];
+                
+                // Check bullet type
+                if(typeof(bullets[i].type) === "undefined" || bullets[i].type == 0) {
+                    // damage
+                    player.red = 1;
+                    if(player.health > 0)
+                        player.health -= 10;
+                } else if(bullets[i].type == 1) {
+                    // add HP
+                    if(player.health < 100 && player.health > 0)
+                        player.health++;
+                } else if(bullets[i].type == 2) {
+                    // add score
+                    score += 100;
+                }
+            }
+        }
 
-		// homing bullets
-		if(typeof(bullets[i].home) !== "undefined" && bullets[i].home) {
-			bullets[i].angle = Math.atan2(player.pos[0] - bullets[i].pos[0], player.pos[1] - bullets[i].pos[1]);
-		}
+        // homing bullets
+        if(typeof(bullets[i].home) !== "undefined" && bullets[i].home) {
+            bullets[i].angle = Math.atan2(player.pos[0] - bullets[i].pos[0], player.pos[1] - bullets[i].pos[1]);
+        }
 
         bullets[i].pos[0] += bullets[i].speed * Math.sin(bullets[i].angle)
         bullets[i].pos[1] += bullets[i].speed * Math.cos(bullets[i].angle)
@@ -847,21 +847,21 @@ function update() {
 
     if(stage_timer > stages[stage].duration) {
         if(stage+1 < stages.length) {
-			if(typeof(stages[stage].clear) !== "undefined" && stages[stage].clear) {
-				for(var i = 0; i < bullets.length; i++) {
-					// 0 - normal
-					// 1 - health
-					// 2 - score
-					if(typeof(bullets[i]) === "undefined")
-						continue;
-					bullets[i].type = Math.random() > 0.99 ? 1 : 2;
-					bullets[i].home = true;
-					bullets[i].speed = .015 * Math.sqrt(Math.pow(bullets[i].pos[0] - player.pos[0], 2) + Math.pow(bullets[i].pos[1] - player.pos[1], 2));
-					bullets[i].size /= 2;
-				}
-			}
+            if(typeof(stages[stage].clear) !== "undefined" && stages[stage].clear) {
+                for(var i = 0; i < bullets.length; i++) {
+                    // 0 - normal
+                    // 1 - health
+                    // 2 - score
+                    if(typeof(bullets[i]) === "undefined")
+                        continue;
+                    bullets[i].type = Math.random() > 0.99 ? 1 : 2;
+                    bullets[i].home = true;
+                    bullets[i].speed = .015 * Math.sqrt(Math.pow(bullets[i].pos[0] - player.pos[0], 2) + Math.pow(bullets[i].pos[1] - player.pos[1], 2));
+                    bullets[i].size /= 2;
+                }
+            }
             stage++;
-		}
+        }
         stage_timer = 0;
     }
 
@@ -873,19 +873,19 @@ function update() {
     
     now = new Date().getTime();
     delta = now - lastUpdate;
-	if(delta > 1000/60) {
-		console.log("LAG! update took " + delta + " milliseconds");
-	}
+    if(delta > 1000/60) {
+        console.log("LAG! update took " + delta + " milliseconds");
+    }
 }
 
 // shim layer with setTimeout fallback
 window.requestAnimFrame = (function() {
-	return  window.requestAnimationFrame       ||
-			window.webkitRequestAnimationFrame ||
-			window.mozRequestAnimationFrame    ||
-			function( callback ){
-				window.setTimeout(callback, 1000 / 60);
-			};
+    return  window.requestAnimationFrame       ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame    ||
+            function( callback ){
+                window.setTimeout(callback, 1000 / 60);
+            };
 })();
 
 function draw_bullets() {
@@ -895,47 +895,47 @@ function draw_bullets() {
         if(typeof(bullets[i]) === "undefined")
             continue;
         
-		if(typeof(bullets[i].type) === "undefined" || bullets[i].type == 0)
-			c.fillStyle = "#FFFFFF";
-		else if(bullets[i].type == 1)
-			c.fillStyle = "#FF3333";
-		else if(bullets[i].type == 2)
-			c.fillStyle = "#5555FF";
-		else
-			c.fillStyle = "#555555";
+        if(typeof(bullets[i].type) === "undefined" || bullets[i].type == 0)
+            c.fillStyle = "#FFFFFF";
+        else if(bullets[i].type == 1)
+            c.fillStyle = "#FF3333";
+        else if(bullets[i].type == 2)
+            c.fillStyle = "#5555FF";
+        else
+            c.fillStyle = "#555555";
 
-		c.beginPath();
-		c.ellipse(bullets[i].pos[0], bullets[i].pos[1], bullets[i].size/2, bullets[i].size/2, 0, 0, 2 * Math.PI);
-		c.fill();
+        c.beginPath();
+        c.ellipse(bullets[i].pos[0], bullets[i].pos[1], bullets[i].size/2, bullets[i].size/2, 0, 0, 2 * Math.PI);
+        c.fill();
     }
 }
 
 function draw_warnings() {
-	// bullet spawn warning
+    // bullet spawn warning
     var b, s;
-	if(stages[stage].duration - stage_timer < 250 && typeof(stages[stage+1]) !== "undefined") {
-		c.fillStyle = "#FF0000";
-		c.strokeStyle = "#FF0000";
-		c.lineWidth = 2;
-		if(typeof(stages[stage+1].bullets) !== "undefined") {
-			for(var i = 0; i < stages[stage+1].bullets.length; i++) {
-				b = stages[stage+1].bullets[i];
-				s = stages[stage].duration - stage_timer;
-				c.beginPath();
-				c.ellipse(b.pos[0], b.pos[1], s, s, 0, 0, 2 * Math.PI);
-				c.stroke();
-			}
-		}
-		if(typeof(stages[stage+1].bursts) !== "undefined") {
-			for(var i = 0; i < stages[stage+1].bursts.length; i++) {
-				b = stages[stage+1].bursts[i];
+    if(stages[stage].duration - stage_timer < 250 && typeof(stages[stage+1]) !== "undefined") {
+        c.fillStyle = "#FF0000";
+        c.strokeStyle = "#FF0000";
+        c.lineWidth = 2;
+        if(typeof(stages[stage+1].bullets) !== "undefined") {
+            for(var i = 0; i < stages[stage+1].bullets.length; i++) {
+                b = stages[stage+1].bullets[i];
                 s = stages[stage].duration - stage_timer;
-				c.beginPath();
-				c.ellipse(b.pos[0], b.pos[1], s, s, 0, 0, 2 * Math.PI);
-				c.stroke();
-			}
-		}
-	}
+                c.beginPath();
+                c.ellipse(b.pos[0], b.pos[1], s, s, 0, 0, 2 * Math.PI);
+                c.stroke();
+            }
+        }
+        if(typeof(stages[stage+1].bursts) !== "undefined") {
+            for(var i = 0; i < stages[stage+1].bursts.length; i++) {
+                b = stages[stage+1].bursts[i];
+                s = stages[stage].duration - stage_timer;
+                c.beginPath();
+                c.ellipse(b.pos[0], b.pos[1], s, s, 0, 0, 2 * Math.PI);
+                c.stroke();
+            }
+        }
+    }
 }
 
 function draw_ui() {
@@ -950,7 +950,7 @@ function draw_ui() {
     c.textAlign = "left";
     c.fillStyle = "#FFFFFF";
     c.fillText("Score: " + score, 120, 19);
-	c.fillText(stages[stage].name, 10, 32);
+    c.fillText(stages[stage].name, 10, 32);
 
     // game over
     if(player.health == 0) {
@@ -966,7 +966,7 @@ function draw_ui() {
 }
 
 function draw() {
-	requestAnimFrame(draw);
+    requestAnimFrame(draw);
     // clear
     if(player.red > 0 || player.health == 0)
         c.fillStyle = "#555555";
@@ -975,17 +975,17 @@ function draw() {
     c.fillRect(0, 0, 800, 600);
     c.fillStyle = "#FFFFFF";
 
-	// background
-	c.fillStyle = "#555555";
-	c.font = "50px monospace";
-	c.textAlign = "center";
-	c.fillText(stages[stage].name, 400, 100);
+    // background
+    c.fillStyle = "#555555";
+    c.font = "50px monospace";
+    c.textAlign = "center";
+    c.fillText(stages[stage].name, 400, 100);
 
     // player
     c.fillStyle = "#00FF00";
-	c.beginPath();
+    c.beginPath();
     c.ellipse(player.pos[0], player.pos[1], player.size/2, player.size/2, 0, 0, 2 * Math.PI);
-	c.fill();
+    c.fill();
 
     if(keys.Slow) {
         c.fillStyle = "#FF0000";
